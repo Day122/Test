@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Hobbies</title>
+    <style>
+        /* --- Base & Reset --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
+        /* Set body background to transparent so the background images can show through */
+        body, html { width: 100%; height: 100%; background: transparent; color: #e0e0e0; overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* --- Background Images Layer (The Main Fix) --- */
+        #background-images {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -3; /* Placed at the very bottom */
+            display: flex;
+        }
+        #background-images img {
+            width: 50%; height: 100%;
+            object-fit: cover;
+            opacity: 0.7; /* Higher opacity for better visibility */
+        }
+
+        /* --- Dark Overlay to keep text readable --- */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Darkens the images slightly */
+            z-index: -2;
+        }
+
+        /* --- Starry Background --- */
+        #star-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+        .star { position: absolute; background-color: white; border-radius: 50%; animation: twinkle linear infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px #fff; } }
+
+        /* --- Bouncing Basketball --- */
+        #ball {
+            position: fixed;
+            width: 65px; height: 65px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/7a/Basketball.png');
+            background-size: cover;
+            z-index: 999;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 165, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #ball:hover { transform: scale(1.1); box-shadow: 0 0 30px rgba(255, 165, 0, 0.8); }
+
+        /* --- Layout --- */
+        .container { max-width: 1000px; margin: 0 auto; padding: 50px 20px; display: flex; flex-direction: column; align-items: center; }
+        h1 { color: #ffffff; font-size: 5rem; text-align: center; margin-top: 10vh; text-transform: uppercase; }
+        h2 { font-size: 3.5rem; color: #ff4757; margin-bottom: 50px; }
+        
+        .text-section { font-size: 1.2rem; line-height: 1.8; background: rgba(0, 0, 0, 0.6); padding: 30px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        
+        /* --- Image Gallery --- */
+        .image-gallery { display: flex; flex-direction: column; align-items: center; gap: 25px; margin-top: 40px; }
+        #active-image { width: 80%; max-width: 500px; border-radius: 15px; border: 2px solid #ff4757; transition: opacity 0.4s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        button { 
+            padding: 12px 35px; background: rgba(255, 71, 87, 0.1); color: #ff4757; 
+            border: 1px solid #ff4757; border-radius: 50px; cursor: pointer; font-size: 1rem; 
+            transition: all 0.3s ease; backdrop-filter: blur(5px);
+        }
+        button:hover { background: #ff4757; color: white; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
+
+        .scroll-animate { opacity: 0; transform: translateY(30px); transition: all 1s ease; }
+        .visible { opacity: 1; transform: translateY(0); }
+        .red-line { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, red, transparent); border: none; margin: 60px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="background-images">
+        <img src="download.jpg" alt="Background Left">
+        <img src="download (1).jpg" alt="Background Right">
+    </div>
+    <div class="overlay"></div> <div id="star-container"></div>
+    <div id="ball" title="Click to Freeze"></div>
+
+    <div class="container">
+        <h1>My Hobbies</h1>
+        <h2 class="scroll-animate">Basketball</h2>
+
+        <div class="text-section scroll-animate">
+            <p>Basketball is far more than just a physical game; it is a fast-paced rhythm of life that challenges both the body and the mind. <b>Click the basketball to freeze it!</b></p>
+        </div>
+
+        <div class="image-gallery scroll-animate">
+            <img id="active-image" src="Kobe Bryant Quotes Wallpaper.jpg" alt="Basketball Image">
+            <button onclick="cycleImages()">Next Image</button>
+        </div>
+    </div>
+
+    <hr class="red-line">
+
+    <script>
+        // Generate Stars
+        const container = document.getElementById('star-container');
+        for (let i = 0; i < 150; i++) {
+            let star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+            star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            container.appendChild(star);
+        }
+
+        // Bouncing Ball Logic
+        const ball = document.getElementById('ball');
+        let posX = 50, posY = 50, velX = 5, velY = 5, isMoving = true;
+
+        function animateBall() {
+            if (isMoving) {
+                posX += velX;
+                posY += velY;
+                if (posX <= 0 || posX >= window.innerWidth - 70) velX *= -1;
+                if (posY <= 0 || posY >= window.innerHeight - 70) velY *= -1;
+                ball.style.left = posX + 'px';
+                ball.style.top = posY + 'px';
+            }
+            requestAnimationFrame(animateBall);
+        }
+        animateBall();
+
+        ball.addEventListener('click', () => {
+            isMoving = !isMoving;
+            if (isMoving) {
+                velX = (Math.random() - 0.5) * 30;
+                velY = (Math.random() - 0.5) * 30;
+            }
+        });
+
+        // Image Cycler
+        const images = ["Kobe Bryant Quotes Wallpaper.jpg", "OIP (1).webp", "GettyImages-1370564264-e1648488757526.jpg"];
+        let currentIndex = 0;
+        function cycleImages() {
+            const imgElement = document.getElementById('active-image');
+            imgElement.style.opacity = 0;
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                imgElement.src = images[currentIndex];
+                imgElement.style.opacity = 1;
+            }, 300);
+        }
+
+        // Scroll Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
